@@ -2,7 +2,11 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<!-- للآيباد: عند الإضافة للشاشة الرئيسية يفتح العرض بملء الشاشة -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="اسم الآلة">
 <title>اسم الآلة — لغتي</title>
 
 <!--
@@ -105,6 +109,7 @@ mark{background:var(--y300);color:inherit;border-radius:10px;padding:0 8px}
 #hint b{font-weight:900}
 body.idle #controls{opacity:0;transform:translate(-50%,40px);pointer-events:none}
 body.idle #hint{opacity:0}
+@media (hover:none){#hint{display:none}}   /* الأجهزة اللمسية (آيباد): لا حاجة لتلميح لوحة المفاتيح */
 body.idle{cursor:none}
 
 /* =====================================================================
@@ -303,6 +308,16 @@ body.idle{cursor:none}
 .fill-foot{display:flex;align-items:center;justify-content:center;gap:24px;min-height:80px}
 .foot-txt{font:700 46px var(--f-text);color:var(--root);display:none}
 .foot-txt.show{display:block;animation:popIn .5s both}
+
+/* — ربط بالوطن — */
+.hl-grid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:1fr;gap:22px}
+.hl-card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:10px 18px;text-align:center;min-height:0}
+.hl-place{font:800 26px var(--f-ui);color:var(--p600);background:var(--p100);border-radius:99px;padding:2px 22px}
+.hl-txt{font:700 34px/1.55 var(--f-text)}
+.hl-ans{display:flex;align-items:center;justify-content:center;gap:14px}
+.hl-card .blank{min-width:230px;height:62px;font-size:36px}
+.hl-card .wchip{margin:0;font-size:28px;padding:0 16px}
+.slide .final.hl-final{min-height:96px}
 
 /* — التعريف التدريجي (أستنتج) — */
 .def-lead{margin:0;text-align:center;font:700 46px/1.7 var(--f-text);color:var(--p700)}
@@ -628,6 +643,21 @@ const SLIDES = [
       { icon:'🧮', text:'أحُلُّ مسائلَ الرياضيّاتِ باستخدامِ', answer:'الحَاسِبَةِ', weight:'فَاعِلَة' },
     ],
     footer:'وهذهِ الأسماءُ تُسمّى اسمَ الآلةِ 🛠️' },
+
+  /* ⑥+ ربط بالوطن — آلاتٌ تبني وطني (اضغطي ؟ لإظهار اسم الآلة ووزنه) */
+  { type:'homeland', anim:'zoom', strategy:'🇸🇦 ربطٌ بالوطن',
+    title:'آلاتٌ تبني وطني',
+    intro:'في وطني الغالي آلاتٌ تصنعُ الإنجازَ.. ما اسمُ كلِّ آلةٍ؟ 🤔',
+    cards:[
+      { icon:'🛢️', place:'حقولُ النفطِ',        text:'تُحفَرُ آبارُ النفطِ بـ',        answer:'الحَفَّارَةِ', weight:'فَعَّالَة' },
+      { icon:'🌴', place:'مزارعُ القصيمِ',       text:'تُحرَثُ الأرضُ الزراعيّةُ بـ',  answer:'المِحْرَاثِ',  weight:'مِفْعَال' },
+      { icon:'🏗️', place:'المشاريعُ الكبرى',     text:'تُرفَعُ الحجارةُ الثقيلةُ بـ',  answer:'الرَّافِعَةِ', weight:'فَاعِلَة' },
+      { icon:'🌊', place:'محطّاتُ تحليةِ المياهِ', text:'تُضَخُّ المياهُ إلى المدنِ بـ', answer:'المِضَخَّةِ', weight:'مِفْعَلَة' },
+      { icon:'🌙', place:'رصدُ الهلالِ',         text:'يُرصَدُ هلالُ رمضانَ بـ',       answer:'المِنْظَارِ', weight:'مِفْعَال' },
+      { icon:'💻', place:'الخدماتُ الرقميّةُ',    text:'تُنجَزُ المعاملاتُ بـ',          answer:'الحَاسُوبِ',  weight:'فَاعُول' },
+    ],
+    finalBtn:'🇸🇦 رسالةٌ لوطني',
+    final:'بالعلمِ والعملِ نبني وطنَنا.. ونصنعُ *آلاتِ المستقبلِ* مع رؤيةِ ٢٠٣٠ 💚' },
 
   /* ⑦ أستنتج — التعريف يظهر جزءًا جزءًا */
   { type:'define', anim:'zoom', strategy:'💡 أستنتجُ',
@@ -1224,6 +1254,31 @@ R.fill = s => {
       h('button', { type: 'button', class: 'btn yellow', onclick: e => { foot.classList.add('show'); e.currentTarget.remove(); celebrate(foot, 50); } }, '💡 ماذا تُسمّى؟'))];
 };
 
+/* ⑥+ ربط بالوطن — بطاقات تُكشف إجابتها بالضغط */
+R.homeland = s => {
+  const final = h('div', { class: 'final hl-final rv' });
+  final.append(h('button', { type: 'button', class: 'btn', onclick: () => {
+    final.replaceChildren(rich(s.final, 'div', 'final-box card pop')); celebrate(final, 70);
+  } }, s.finalBtn));
+  return [head(s),
+    s.intro ? rich(s.intro, 'p', 'intro rv') : null,
+    h('div', { class: 'hl-grid' },
+      s.cards.map(c => {
+        const wch = h('div', { class: 'wchip', html: 'على وزنِ: ' + colorRoot(c.weight) });
+        return h('div', { class: 'hl-card card rv' },
+          h('div', { class: 'hl-place' }, c.icon + ' ' + c.place),
+          rich(c.text, 'div', 'hl-txt'),
+          h('div', { class: 'hl-ans' },
+            h('button', { type: 'button', class: 'blank', onclick: e => {
+              const b = e.currentTarget; if (b.classList.contains('open')) return;
+              b.classList.add('open'); b.textContent = c.answer; sfx.ding();
+              setTimeout(() => wch.classList.add('show'), 350);
+            } }, '؟'),
+            wch));
+      })),
+    final];
+};
+
 /* ⑦ التعريف التدريجي */
 R.define = s => {
   let shown = 0;
@@ -1600,8 +1655,11 @@ $('#cPrev').onclick = prev;
 $('#cNext').onclick = next;
 $('#cClap').onclick = clap;
 $('#cFull').onclick = () => {
-  if (!document.fullscreenElement) document.documentElement.requestFullscreen?.().catch(() => {});
-  else document.exitFullscreen?.();
+  const d = document, el = d.documentElement;
+  if (!(d.fullscreenElement || d.webkitFullscreenElement)) {
+    if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
+    else el.webkitRequestFullscreen?.();                          // آيباد (سفاري القديم)
+  } else (d.exitFullscreen || d.webkitExitFullscreen)?.call(d);
 };
 
 // السحب باللمس (للسبورة الذكية)
